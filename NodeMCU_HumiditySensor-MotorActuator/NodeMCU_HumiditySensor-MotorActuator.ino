@@ -4,7 +4,6 @@
 #include <Adafruit_Sensor.h>
 #include <LiquidCrystal_I2C.h>
 #include <DHT.h>
-
 ///////////////Parameters & Constants/////////////////
 // WIFI params
 char* WIFI_SSID = "b";    // Configure here the SSID of your WiFi Network

@@ -35,3 +35,4 @@ if __name__ == '__main__':
     # preuve que ca marche
     print("pluie a marseille dans 8 h ?" + str(RainAtLocationInXHours(config['location']['city']+','+config['location']['country'], 8)))
     print("pluie a londre dans 8 h ?" + str(RainAtLocationInXHours('London,GB', 8)))
+    print("pluie a londre dans 8 h ?" + str(RainAtLocationInXHours('London,GB', 8)))
