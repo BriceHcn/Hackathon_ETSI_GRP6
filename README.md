@@ -6,14 +6,14 @@
 ## Introduction
 
 ETSI ISEN Yncrea Hackathon GRP 6 mai/juin 2021.
-Ce github comporte 3 dossiers  : 
--le serveur ACME;
--Le code du node MCU;
--l'application "utilisateur" python.
+Ce github comporte 3 dossiers  : \n
+-le serveur ACME; \n
+-Le code du node MCU; \n
+-l'application "utilisateur" python. \n
 
 ## Notre projet
 
-Détecteur d’humidité dans la terre proche d’une plante :
+Détecteur d’humidité dans la terre proche d’une plante :\n
 Plusieurs niveaux de difficultés :
 •	Niveau 1 : Vérification toute les 8 heures du niveau d’humidité dans la terre aux proximités d’une racine. Selon le niveau d’humidité on arrose ou pas la plante avec une quantité adaptée
 •	Niveau 2 : Analyse de la météo via une API pour savoir s’il va pleuvoir et ne pas arroser inutilement.
