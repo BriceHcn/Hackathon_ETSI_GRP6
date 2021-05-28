@@ -400,8 +400,6 @@ else if(hpercent >0 && hpercent < 100)
 {
   ciContent = String(hpercent);
 }
-Serial.println(ciContent);
-  
   originator = "Cae-HumiditySensor";
   createCI("HumiditySensor", DATA_CNT_NAME, ciContent);
 

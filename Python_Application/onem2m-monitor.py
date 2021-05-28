@@ -146,6 +146,7 @@ def processNotification():
     # demo selection : begin
     if (sensorToMonitor == "HumiditySensor") and (actuatorToTrigger == "LedActuator"):
         commandLedHumidity(sensorValue)
+        #TODO par ici pour mettre notre seconde sensor et actuator
     else:
         print("Demo not implemented")
     # demo selection : end
