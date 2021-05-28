@@ -41,12 +41,15 @@ int REQUEST_NR = 0;
 //MISC
 int DHT_PIN = D3;  // Adapt it accordding to your wiring 
 int LED_PIN = D5;  // Adapt it accordding to your wiring. Use BUILTIN_LED for onboarded led
+int MOIST_PIN = A0;
 #define OFF_STATE  LOW // *** External LED is active at HIGH, while Onboarded LED is active at LOW. 
 #define ON_STATE HIGH  // *** Adapat it is according to your config
 int SERIAL_SPEED  = 115200;
 #define DHTTYPE DHT11
 DHT dht(DHT_PIN, DHTTYPE);
 LiquidCrystal_I2C lcd(0x27, 16, 2);
+int AirValue = 730;
+int WaterValue= 290;
 
 #define DEBUG
 
@@ -284,7 +287,7 @@ void registerModule(String module, bool isActuator, String intialDescription, St
 void init_IO() {
   // Configure pin 0 for LED control
   pinMode(LED_PIN, OUTPUT);
-  //pinMode(TLT_PIN, INPUT);
+  //pinMode(MOIST_PIN, INPUT);
   digitalWrite(LED_PIN, OFF_STATE);
 }
 void task_IO() {
@@ -375,20 +378,36 @@ void init_humidity() {
 }
 void task_humidity() {
   String ciContent = "0";
-  //sensorValue = digitalRead(TLT_PIN);
-  float h = dht.readHumidity();
+  int h = analogRead(MOIST_PIN);
+  //float h = dht.readHumidity();
+  int hpercent = map(h, AirValue, WaterValue, 0, 100);
   #ifdef DEBUG
   Serial.println("humidity = ");
-  Serial.println(h);
+  Serial.println(hpercent);
   delay(100);
   #endif
-  ciContent = String(int(h));
+
+
+  if(hpercent >= 100)
+{
+  ciContent="100";
+}
+else if(hpercent <=0)
+{
+  ciContent="0";
+}
+else if(hpercent >0 && hpercent < 100)
+{
+  ciContent = String(hpercent);
+}
+Serial.println(ciContent);
+  
   originator = "Cae-HumiditySensor";
   createCI("HumiditySensor", DATA_CNT_NAME, ciContent);
 
   //LCD SCREEN
   lcd.setCursor(1, 0);
-  lcd.print("Humidity : " + ciContent);
+  lcd.print("Humidity : " + ciContent+"    ");
 }
 void command_humidity(String cmd) {
 }
