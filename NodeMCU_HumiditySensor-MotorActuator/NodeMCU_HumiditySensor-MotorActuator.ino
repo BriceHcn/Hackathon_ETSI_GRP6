@@ -1,16 +1,14 @@
-// Version 1.0
-
 #include <ESP8266WiFi.h>
 #include <Adafruit_Sensor.h>
 #include <LiquidCrystal_I2C.h>
 #include <DHT.h>
-///////////////Parameters & Constants/////////////////
-// WIFI params
+///////////////Parametres & Constantes/////////////////
+// WIFI 
 char* WIFI_SSID = "b";    // Configure here the SSID of your WiFi Network
 char* WIFI_PSWD = "638d8hcn"; // Configure here the PassWord of your WiFi Network
 int WIFI_DELAY  = 100; //ms
 
-// oneM2M : CSE params
+// oneM2M param
 String CSE_IP      = "192.168.43.225"; //Configure here the IP Address of your oneM2M CSE
 int   CSE_HTTP_PORT = 8080;
 String CSE_NAME    = "cse-in";
@@ -18,7 +16,6 @@ String CSE_RELEASE = "3"; //Configure here the release supported by your oneM2M 
 bool ACP_REQUIRED = false; //Configure here whether or not ACP is required controlling access
 String ACPID = "";
 
-// oneM2M : resources' params
 String DESC_CNT_NAME = "DESCRIPTOR";
 String DATA_CNT_NAME = "DATA";
 String CMND_CNT_NAME = "COMMAND";
@@ -37,25 +34,26 @@ char* HTTP_OK    = "HTTP/1.1 200 OK\r\n";
 int REQUEST_TIME_OUT = 5000; //ms
 int REQUEST_NR = 0;
 
-
 //MISC
-int DHT_PIN = D3;  // Adapt it accordding to your wiring 
-int LED_PIN = D5;  // Adapt it accordding to your wiring. Use BUILTIN_LED for onboarded led
+int DHT_PIN = D3;  
+int LED_PIN = D5;  
 int MOIST_PIN = A0;
-#define OFF_STATE  LOW // *** External LED is active at HIGH, while Onboarded LED is active at LOW. 
-#define ON_STATE HIGH  // *** Adapat it is according to your config
+#define OFF_STATE  LOW  
+#define ON_STATE HIGH 
 int SERIAL_SPEED  = 115200;
 #define DHTTYPE DHT11
 DHT dht(DHT_PIN, DHTTYPE);
 LiquidCrystal_I2C lcd(0x27, 16, 2);
-int AirValue = 730;
-int WaterValue= 290;
+
 
 #define DEBUG
 
 ///////////////////////////////////////////
 
 // Global variables
+int AirValue = 730; //echelle de l'humidité de notre capteur, pour le calibrer
+int WaterValue= 290;
+
 const long heureInterval = 3; //temps en heure entre chaque envoie de données
 
 #ifdef DEBUG
@@ -288,7 +286,7 @@ void init_IO() {
   // Configure pin 0 for LED control
   pinMode(LED_PIN, OUTPUT);
   //pinMode(MOIST_PIN, INPUT);
-  digitalWrite(LED_PIN, OFF_STATE);
+  digitalWrite(LED_PIN, ON_STATE);
 }
 void task_IO() {
 }
@@ -431,20 +429,19 @@ void command_led(String cmd) {
     Serial.println("Switching on the LED ...");
     #endif
     
-    digitalWrite(LED_PIN, ON_STATE);
+    digitalWrite(LED_PIN, OFF_STATE);
     lcd.setCursor(1, 1);
     lcd.print("Water is  on");
     delay(wateringTime);
-    digitalWrite(LED_PIN, OFF_STATE);
+    digitalWrite(LED_PIN, ON_STATE);
     lcd.setCursor(1, 1);
-    lcd.print("Water is off");
-    
+    lcd.print("                ");
   }
   else if (cmd == "switchOff") {
     #ifdef DEBUG
     Serial.println("Switching off the LED ...");
     #endif
-    digitalWrite(LED_PIN, OFF_STATE);
+    digitalWrite(LED_PIN, ON_STATE);
   } 
 }
 
@@ -466,19 +463,15 @@ void setup() {
   dht.begin();
   init_led();
 
+
   //setup lcd screen
   lcd.begin(16,2);
   lcd.init();
   lcd.backlight();
 }
 
-// Main loop of the µController
 void loop() {
-  
-  
   while(millis()-currentMillis < interval) {
-
-    
     // Check if a client is connected
     task_HTTPServer();
     // analyse the received command (if any)
@@ -496,7 +489,10 @@ void loop() {
     return;
   }
   currentMillis = millis();
+  lcd.setCursor(0, 0);
+  lcd.print("                ");
   task_humidity();
 
   
+
 }
