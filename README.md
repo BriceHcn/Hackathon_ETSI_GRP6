@@ -8,8 +8,8 @@
 ETSI ISEN Yncrea Hackathon GRP 6 mai/juin 2021.
 Ce github comporte 3 dossiers  : 
 -le serveur ACME; 
--Le code du node MCU; 
--l'application "utilisateur" python. 
+-Notre code pour le node MCU; 
+-Notre application "utilisateur" en python. 
 
 ## Notre projet
 
