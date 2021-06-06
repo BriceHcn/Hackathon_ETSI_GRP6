@@ -26,5 +26,8 @@
 	},
 	"delay":{
 		"rainDelay": 8
+	},
+	"sun":{
+		"maxTemp" : 35
 	}
 }

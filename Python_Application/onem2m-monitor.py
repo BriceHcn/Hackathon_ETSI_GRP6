@@ -37,6 +37,46 @@ sensorToMonitor = ""
 actuatorToTrigger = ""
 
 
+def RainAtLocationInXHours(location, hours):
+    # API Setup
+    APIKEY = config["API"]['key']
+    owm = OWM(APIKEY)
+    mgr = owm.weather_manager()
+
+    # On creer une variable contenant les previsions mise a jours toute les 3h
+    three_h_forecaster = mgr.forecast_at_place(location, '3h')
+
+    # on creer une variable temps qui contient le temps dans X heures
+    inXHours = timestamps.now() + timedelta(hours=hours)
+
+    # On recupere l'info sur la pluie
+    rain = three_h_forecaster.will_be_rainy_at(inXHours)
+
+    # On renvoie un booleen selon s'il va pleuvoir a cette lcation dans les x procchaines heures
+    return rain
+
+
+def tooHotDuringSunTime(location, temp):
+    # API Setup
+    APIKEY = config["API"]['key']
+    owm = OWM(APIKEY)
+    mgr = owm.weather_manager()
+
+    observation = mgr.weather_at_place(location)
+    weather = observation.weather
+
+    sunrise_date = weather.sunrise_time(timeformat='date')
+    sunrset_date = weather.sunset_time(timeformat='date')
+
+    currenTemp = weather.temperature('celsius')['temp']
+    if (timestamps.now() >= sunrise_date and timestamps.now() <= sunrset_date and currenTemp > temp):
+        return True
+    else:
+        return False
+
+    return False
+
+
 def createSUB():
     global requestNr
     global cseRelease
@@ -143,13 +183,8 @@ def processNotification():
     sensorValue = int(notificationJSON['m2m:sgn']['nev']['rep']['m2m:cin']['con'])
     print("Receieved sensor value : ", sensorValue)
 
-    # demo selection : begin
     if (sensorToMonitor == "HumiditySensor") and (actuatorToTrigger == "LedActuator"):
         commandLedHumidity(sensorValue)
-        #TODO par ici pour mettre notre seconde sensor et actuator
-    else:
-        print("Demo not implemented")
-    # demo selection : end
 
     response = Response('')
     response.headers["X-M2M-RSC"] = 2000
@@ -162,7 +197,8 @@ def commandLedHumidity(sensorValue):
     print("seuil humdité = %d" % (humidityThreshold))
     global isLedOn
 
-    rainIn8hours = RainAtLocationInXHours(config['location']['city'] + ',' + config['location']['country'],  config['delay']['rainDelay'])
+    rainIn8hours = RainAtLocationInXHours(config['location']['city'] + ',' + config['location']['country'],
+                                          config['delay']['rainDelay'])
 
     # if (sensorValue > humidityThreshold) and (isLedOn == True):
     if sensorValue > humidityThreshold:
@@ -170,15 +206,18 @@ def commandLedHumidity(sensorValue):
         createCIN(actuatorToTrigger, "[switchOff]")
         isLedOn = False
     # elif (sensorValue < humidityThreshold) and (isLedOn == False):
-    elif (sensorValue < humidityThreshold) :
-        if rainIn8hours :
-            #pluie dans les 8 prochaines heures donc rien
-            print("Low humidity but rain in next "+str(config['delay']['rainDelay'])+" hours @"+config['location']['city']+" => Switch OFF the led")
+    elif (sensorValue < humidityThreshold):
+        if rainIn8hours or tooHotDuringSunTime(config['location']['city'], config["sun"]['maxTemp']):
+            # pluie dans les 8 prochaines ou trop chaud durant la journée
+            print("Low humidity but rain in next " + str(config['delay']['rainDelay']) + " hours @" + config['location']['city'])
+            print("Or too hot right now" + "@" + config['location']['city'])
+            print(" => Switch OFF the led")
             createCIN(actuatorToTrigger, "[switchOff]")
             isLedOn = False
-        else :
-            # pas de pluie dans les 8 prochaines heures donc on arrose
-            print("Low humidity and no rain in next "+str(config['delay']['rainDelay'])+" hours @"+config['location']['city']+" => Switch ON the led")
+        else:
+            # pas de pluie dans les 8 prochaines heures ni trop chaud donc on arrose
+            print("Low humidity, no rain in next"+ str(config['delay']['rainDelay']) + " hours " +" and not too hot @" +
+                  config['location']['city'] + " => Switch ON the led")
             createCIN(actuatorToTrigger, "[switchOn]")
             isLedOn = True
 
@@ -288,25 +327,6 @@ def getParameters():
 
     if args.__contains__("func"):
         args.func(args)
-
-
-def RainAtLocationInXHours(location, hours):
-    # API Setup
-    APIKEY = config["API"]['key']
-    owm = OWM(APIKEY)
-    mgr = owm.weather_manager()
-
-    # On creer une variable contenant les previsions mise a jours toute les 3h
-    three_h_forecaster = mgr.forecast_at_place(location, '3h')
-
-    # on creer une variable temps qui contient le temps dans X heures
-    inXHours = timestamps.now() + timedelta(hours=hours)
-
-    # On recupere l'info sur la pluie
-    rain = three_h_forecaster.will_be_rainy_at(inXHours)
-
-    # On renvoie un booleen selon s'il va pleuvoir a cette lcation dans les x procchaines heures
-    return rain
 
 
 if __name__ == '__main__':
