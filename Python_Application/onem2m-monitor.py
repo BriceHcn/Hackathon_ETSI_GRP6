@@ -197,15 +197,13 @@ def commandLedHumidity(sensorValue):
     print("seuil humdité = %d" % (humidityThreshold))
     global isLedOn
 
-    rainIn8hours = RainAtLocationInXHours(config['location']['city'] + ',' + config['location']['country'],
-                                          config['delay']['rainDelay'])
+    rainIn8hours = RainAtLocationInXHours(config['location']['city'] + ',' + config['location']['country'],config['delay']['rainDelay'])
 
-    # if (sensorValue > humidityThreshold) and (isLedOn == True):
     if sensorValue > humidityThreshold:
         print("High humidity => Switch OFF the led")
         createCIN(actuatorToTrigger, "[switchOff]")
         isLedOn = False
-    # elif (sensorValue < humidityThreshold) and (isLedOn == False):
+
     elif (sensorValue < humidityThreshold):
         if rainIn8hours or tooHotDuringSunTime(config['location']['city'], config["sun"]['maxTemp']):
             # pluie dans les 8 prochaines ou trop chaud durant la journée
@@ -216,11 +214,9 @@ def commandLedHumidity(sensorValue):
             isLedOn = False
         else:
             # pas de pluie dans les 8 prochaines heures ni trop chaud donc on arrose
-            print("Low humidity, no rain in next"+ str(config['delay']['rainDelay']) + " hours " +" and not too hot @" +
-                  config['location']['city'] + " => Switch ON the led")
+            print("Low humidity, no rain in next"+ str(config['delay']['rainDelay']) + " hours " +" and not too hot @" +config['location']['city'] + " => Switch ON the led")
             createCIN(actuatorToTrigger, "[switchOn]")
             isLedOn = True
-
     else:
         print("Nothing to do")
 
